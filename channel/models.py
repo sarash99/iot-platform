@@ -1,5 +1,6 @@
 from django.db import models
 from account.models import Account
+from rest_framework_api_key.models import APIKey
 
 # Create your models here.
 class Channel(models.Model):
@@ -14,8 +15,9 @@ class Channel(models.Model):
     field5 = models.CharField(max_length=50, null=True)
     field6 = models.CharField(max_length=50, null=True)
     field7 = models.CharField(max_length=50, null=True)
-    field8  = models.CharField(max_length=50, null=True)
+    field8 = models.CharField(max_length=50, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    api_key = models.ForeignKey(APIKey, default=None, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.channel_name

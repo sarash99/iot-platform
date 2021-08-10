@@ -6,6 +6,8 @@ app_name = "channel"
 urlpatterns = [
     path('create-channel/', views.createChannel),
     path('channel-list/', views.view_channel_list),
-    path('view-channel/<slug>/', views.view_channel),
-    path('delete-channel/<slug>/', views.deleteChannel),
+    path('<slug>/view-channel/', views.view_channel),
+    path('<slug>/delete-channel/', views.deleteChannel),
+    path('<slug>/create-api-key/', views.create_API_KEY),
+    path('receive-data/', views.receive_data),
 ]

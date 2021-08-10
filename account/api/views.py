@@ -13,7 +13,6 @@ def registration_view(request):
         serializer = AccountRegistrationSerializer(data=request.data)
         data = {}
         if serializer.is_valid():
-
             account = serializer.save()
             data['response'] = "successfully registered"
             data['email'] = account.email
@@ -23,7 +22,6 @@ def registration_view(request):
         else:
             data = serializer.errors
         return Response(data)
-
 
 
 
