@@ -108,8 +108,7 @@ def receive_data(request):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     api_key = APIKey.objects.get_from_key(key)
     channel = Channel.objects.get(api_key=api_key)
-    feed = Feed(channel_id=channel)
-    feedSerializer = FeedSerializer(feed, request.POST)
+    feedSerializer = FeedSerializer(channel, request.POST)
 
     data = {}
     if feedSerializer.is_valid():
