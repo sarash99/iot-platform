@@ -6,5 +6,5 @@ app_name = "account"
 
 urlpatterns = [
     url(r'^register/', views.registration_view, name="register"),
-    url(r'^login/', obtain_auth_token, name="login")
+    url(r'^login/', views.login_view, name="login")
 ]
