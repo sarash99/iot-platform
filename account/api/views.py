@@ -41,4 +41,4 @@ def login_view(request):
         return Response(data, status=status.HTTP_200_OK)
     else:
         data['response'] = 'incorrect password or email'
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
