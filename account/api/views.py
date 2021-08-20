@@ -6,6 +6,7 @@ from account.api.serializers import AccountRegistrationSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from django.contrib.auth import authenticate,login
 
 @api_view(['POST',])
 @permission_classes((AllowAny,))
@@ -24,7 +25,5 @@ def registration_view(request):
         else:
             data = serializer.errors
             return Response(data, status= status.HTTP_400_BAD_REQUEST)
-
-
 
 

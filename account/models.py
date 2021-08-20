@@ -37,7 +37,7 @@ class MyAccountManager(BaseUserManager):
 
 class Account(AbstractBaseUser):
     email = models.EmailField(verbose_name="email" , max_length=60 ,unique=True)
-    username = models.CharField(max_length=50 , unique=True)
+    username = models.CharField(max_length=50)
     user_id= models.AutoField(primary_key=True , default=None)
     date_joined = models.DateTimeField(verbose_name="date-jonied" , auto_now_add=True)
     last_login = models.DateTimeField(verbose_name="last-login" , auto_now=True)
@@ -46,8 +46,8 @@ class Account(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['']
 
     #tell what the user manager is
     objects = MyAccountManager()
