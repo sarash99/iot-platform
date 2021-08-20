@@ -29,14 +29,14 @@ def registration_view(request):
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def login_view(request):
-    email = request.POST.get('email')
-    password = request.POST.get('password')
+    email = request.POST['email']
+    password = request.POST['password']
 
     user = authenticate(email=email, password=password)
     data = {}
     if user:
         login(request, user)
-        token , _= Token.objects.get_or_create(user=user)
+        token, _ = Token.objects.get_or_create(user=user)
         data['token'] = token.key
         return Response(data, status=status.HTTP_200_OK)
     else:
