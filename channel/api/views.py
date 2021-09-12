@@ -41,7 +41,7 @@ def view_channel_list(request):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def view_channel(request, slug):
-    data={}
+    data = {}
     account = request.user
     try:
         channel = Channel.objects.get(channel_name=slug)
@@ -54,7 +54,7 @@ def view_channel(request, slug):
 
     channel_serializer = ChannelSerializer(channel)
     feeds = Feed.objects.filter(channel_id=channel)
-    feed_serializer = FeedSerializer(feeds[0])
+    feed_serializer = FeedSerializer(feeds, many=True)
     data['channel'] = channel_serializer.data
     data['feeds'] = feed_serializer.data
     return Response(data, status=status.HTTP_200_OK)
