@@ -17,4 +17,4 @@ class Feed(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.feed_id
+        return str(self.feed_id)

@@ -1,16 +1,13 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from channel.api.serializers import ChannelSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_api_key.models import APIKey
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework import status
 from channel.models import Channel
 from feed.models import Feed
 from feed.api.serializers import FeedSerializer
-from account.models import Account
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
 
 
 @api_view(['POST'])
@@ -50,14 +47,14 @@ def view_channel(request, slug):
         channel = Channel.objects.get(channel_name=slug)
         if channel.user_id != account:
             data['response'] = "you don't have permission to visit this channel"
-            return Response(data,status=status.HTTP_401_UNAUTHORIZED)
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     channel_serializer = ChannelSerializer(channel)
     feeds = Feed.objects.filter(channel_id=channel)
-    feed_serializer = FeedSerializer(feeds, many=True)
+    feed_serializer = FeedSerializer(feeds[0])
     data['channel'] = channel_serializer.data
     data['feeds'] = feed_serializer.data
     return Response(data, status=status.HTTP_200_OK)
@@ -102,17 +99,19 @@ def create_API_KEY(request, slug):
     data['api-key'] = key
     return Response(data, status=status.HTTP_200_OK)
 
+
 @api_view(['POST',])
-@permission_classes((HasAPIKey,))
+@permission_classes((AllowAny,))
 def receive_data(request):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     api_key = APIKey.objects.get_from_key(key)
     channel = Channel.objects.get(api_key=api_key)
-    feedSerializer = FeedSerializer(channel, request.POST)
-
+    feed = Feed(channel_id=channel)
+    feedSerializer = FeedSerializer(feed, request.POST)
     data = {}
     if feedSerializer.is_valid():
-        feedSerializer.save()
-        data['response'] = "data received"
+        feedSerializer.save(channel_id=channel)
+        data['response'] = 'data received'
+        data['feed'] = feedSerializer.data
         return Response(data, status=status.HTTP_200_OK)
     return Response(feedSerializer.errors, status=status.HTTP_400_BAD_REQUEST)

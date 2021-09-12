@@ -24,10 +24,8 @@ SECRET_KEY = 'django-insecure-zd#63dhu(g)2ato1tfmx7tzsl4b)$j$%i_rz-1l1la!1$3a488
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+# ALLOWED_HOSTS = ['sarash99.pythonanywhere.com', '127.0.0.1']
 ALLOWED_HOSTS = ['*']
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles'
+    'django.contrib.staticfiles',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -68,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'iot_platform.urls'
@@ -91,9 +91,15 @@ TEMPLATES = [
 
 AUTH_USER_MODEL = 'account.Account'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+
+# CORS_ALLOWED_ORIGINS = ['http://sarash99.pythonanywhere.com', 'http://127.0.0.1',] # If this is used, then not need to use `CORS_ALLOW_ALL_ORIGINS = True`
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+
 
 WSGI_APPLICATION = 'iot_platform.wsgi.application'
 
