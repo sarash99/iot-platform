@@ -8,6 +8,10 @@ from rest_framework import status
 from channel.models import Channel
 from feed.models import Feed
 from feed.api.serializers import FeedSerializer
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.generics import ListAPIView
+import math
 
 
 @api_view(['POST'])
@@ -115,3 +119,26 @@ def receive_data(request):
         data['feed'] = feedSerializer.data
         return Response(data, status=status.HTTP_200_OK)
     return Response(feedSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def view_page_feeds(request, slug, page):
+    data = {}
+    account = request.user
+    try:
+        channel = Channel.objects.get(channel_name=slug)
+        if channel.user_id != account:
+            data['response'] = "you don't have permission to visit this channel"
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+    except Channel.DoesNotExist:
+        data['response'] = "this channel does not exists"
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+
+    feeds = Feed.objects.filter(channel_id=channel)
+    feed_serializer = FeedSerializer(feeds, many=True)
+    count = math.ceil(len(feed_serializer.data)/10)
+    data['count'] = count
+    data['feeds'] = feed_serializer.data[(page-1)*10: page*10]
+    return Response(data, status=status.HTTP_200_OK)
