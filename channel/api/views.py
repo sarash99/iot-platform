@@ -8,10 +8,8 @@ from rest_framework import status
 from channel.models import Channel
 from feed.models import Feed
 from feed.api.serializers import FeedSerializer
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.generics import ListAPIView
 import math
+from datetime import datetime
 
 
 @api_view(['POST'])
@@ -57,7 +55,7 @@ def view_channel(request, slug):
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     channel_serializer = ChannelSerializer(channel)
-    feeds = Feed.objects.filter(channel_id=channel)
+    feeds = Feed.objects.filter(channel_id=channel).order_by('-created_at')
     feed_serializer = FeedSerializer(feeds, many=True)
     data['channel'] = channel_serializer.data
     data['feeds'] = feed_serializer.data
@@ -136,9 +134,36 @@ def view_page_feeds(request, slug, page):
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
-    feeds = Feed.objects.filter(channel_id=channel)
+    feeds = Feed.objects.filter(channel_id=channel).order_by('-created_at')
     feed_serializer = FeedSerializer(feeds, many=True)
     count = math.ceil(len(feed_serializer.data)/10)
     data['count'] = count
     data['feeds'] = feed_serializer.data[(page-1)*10: page*10]
+    return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def view_filtered_feeds(request, slug):
+    data = {}
+    account = request.user
+    try:
+        channel = Channel.objects.get(channel_name=slug)
+        if channel.user_id != account:
+            data['response'] = "you don't have permission to visit this channel"
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+    except Channel.DoesNotExist:
+        data['response'] = "this channel does not exists"
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+    filter_datetime = request.GET.get('filter_datetime', '')
+    if filter_datetime:
+        created_at = datetime.strptime(filter_datetime, "%Y-%m-%d %H:%M")
+        feeds = Feed.objects.filter(created_at__gte=created_at, channel_id=channel).order_by('-created_at')
+        feed_serializer = FeedSerializer(feeds, many=True)
+        data['feeds'] = feed_serializer.data
+    # else:
+    #     feeds = Feed.objects.all().order_by('-created_at')
+    #     feed_serializer = FeedSerializer(feeds, many=True)
+    #     data['feeds'] = feed_serializer.data[0:10]
     return Response(data, status=status.HTTP_200_OK)
