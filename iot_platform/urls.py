@@ -19,8 +19,6 @@ from django.conf.urls import url
 
 urlpatterns = [
     url('admin/', admin.site.urls),
-    url(r'^account/', include('account.urls')),
-    url(r'^channel/', include('channel.urls')),
     url(r'^api/account/', include('account.api.urls')),
     url(r'^api/channel/', include('channel.api.urls')),
 ]

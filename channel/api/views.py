@@ -3,7 +3,6 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from channel.api.serializers import ChannelSerializer
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_api_key.models import APIKey
-from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework import status
 from channel.models import Channel
 from feed.models import Feed
@@ -35,7 +34,6 @@ def view_channel_list(request):
     channels = Channel.objects.filter(user_id=account)
     data = {}
     serializer = ChannelSerializer(channels, many=True)
-    # data['channels'] =JSONRenderer().render(serializer.data)
     data['channels'] = serializer.data
     return Response(data)
 
@@ -55,14 +53,11 @@ def view_channel(request, slug):
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     channel_serializer = ChannelSerializer(channel)
-    feeds = Feed.objects.filter(channel_id=channel).order_by('-created_at')
-    feed_serializer = FeedSerializer(feeds, many=True)
     data['channel'] = channel_serializer.data
-    data['feeds'] = feed_serializer.data
     return Response(data, status=status.HTTP_200_OK)
 
 
-@api_view(['DELETE',])
+@api_view(['DELETE', ])
 @permission_classes((IsAuthenticated,))
 def deleteChannel(request, slug):
     data = {}
@@ -83,7 +78,8 @@ def deleteChannel(request, slug):
     data['response'] = "delete failed"
     return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET',])
+
+@api_view(['GET', ])
 @permission_classes((IsAuthenticated,))
 def create_API_KEY(request, slug):
     data = {}
@@ -102,7 +98,7 @@ def create_API_KEY(request, slug):
     return Response(data, status=status.HTTP_200_OK)
 
 
-@api_view(['POST',])
+@api_view(['POST', ])
 @permission_classes((AllowAny,))
 def receive_data(request):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
@@ -133,7 +129,6 @@ def view_page_feeds(request, slug, page):
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-
     feeds = Feed.objects.filter(channel_id=channel).order_by('-created_at')
     feed_serializer = FeedSerializer(feeds, many=True)
     count = math.ceil(len(feed_serializer.data)/10)
@@ -162,8 +157,8 @@ def view_filtered_feeds(request, slug):
         feeds = Feed.objects.filter(created_at__gte=created_at, channel_id=channel).order_by('-created_at')
         feed_serializer = FeedSerializer(feeds, many=True)
         data['feeds'] = feed_serializer.data
-    # else:
-    #     feeds = Feed.objects.all().order_by('-created_at')
-    #     feed_serializer = FeedSerializer(feeds, many=True)
-    #     data['feeds'] = feed_serializer.data[0:10]
+    else:
+        feeds = Feed.objects.all().order_by('-created_at')
+        feed_serializer = FeedSerializer(feeds, many=True)
+        data['feeds'] = feed_serializer.data[0:10]
     return Response(data, status=status.HTTP_200_OK)
