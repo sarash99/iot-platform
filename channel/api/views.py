@@ -45,9 +45,6 @@ def view_channel(request, slug):
     account = request.user
     try:
         channel = Channel.objects.get(user_id=account, channel_name=slug)
-        if channel.user_id != account:
-            data['response'] = "you don't have permission to visit this channel"
-            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
@@ -64,8 +61,6 @@ def deleteChannel(request, slug):
     account = request.user
     try:
         channel = Channel.objects.get(user_id=account, channel_name=slug)
-        if account != channel.user_id:
-            return Response({'response': "you don't have permission to delete this channel"}, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
@@ -86,8 +81,7 @@ def create_API_KEY(request, slug):
     account = request.user
     try:
         channel = Channel.objects.get(user_id=account, channel_name=slug)
-        if account != channel.user_id:
-            return Response({'response': "you don't have permission to access this channel"}, status=status.HTTP_401_UNAUTHORIZED)
+
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
@@ -107,9 +101,20 @@ def create_API_KEY(request, slug):
 @api_view(['POST', ])
 @permission_classes((AllowAny,))
 def receive_data(request):
+    data = {}
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    api_key = APIKey.objects.get_from_key(key)
-    channel = Channel.objects.get(api_key=api_key)
+    try:
+        api_key = APIKey.objects.get_from_key(key)
+    except APIKey.DoesNotExist:
+        data['response'] = "this api key does not exists"
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        channel = Channel.objects.get(api_key=api_key)
+    except Channel.DoesNotExist:
+        data['response'] = "channel with this api key does not exists"
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
+
     feed = Feed(channel_id=channel)
     feedSerializer = FeedSerializer(feed, request.POST)
     data = {}
@@ -128,9 +133,6 @@ def view_page_feeds(request, slug, page):
     account = request.user
     try:
         channel = Channel.objects.get(user_id=account, channel_name=slug)
-        if channel.user_id != account:
-            data['response'] = "you don't have permission to visit this channel"
-            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
@@ -150,9 +152,6 @@ def view_filtered_feeds(request, slug):
     account = request.user
     try:
         channel = Channel.objects.get(user_id=account, channel_name=slug)
-        if channel.user_id != account:
-            data['response'] = "you don't have permission to visit this channel"
-            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
