@@ -44,7 +44,7 @@ def view_channel(request, slug):
     data = {}
     account = request.user
     try:
-        channel = Channel.objects.get(channel_name=slug)
+        channel = Channel.objects.get(user_id=account, channel_name=slug)
         if channel.user_id != account:
             data['response'] = "you don't have permission to visit this channel"
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
@@ -63,7 +63,7 @@ def deleteChannel(request, slug):
     data = {}
     account = request.user
     try:
-        channel = Channel.objects.get(channel_name=slug)
+        channel = Channel.objects.get(user_id=account, channel_name=slug)
         if account != channel.user_id:
             return Response({'response': "you don't have permission to delete this channel"}, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
@@ -85,7 +85,7 @@ def create_API_KEY(request, slug):
     data = {}
     account = request.user
     try:
-        channel = Channel.objects.get(channel_name=slug)
+        channel = Channel.objects.get(user_id=account, channel_name=slug)
         if account != channel.user_id:
             return Response({'response': "you don't have permission to access this channel"}, status=status.HTTP_401_UNAUTHORIZED)
     except Channel.DoesNotExist:
@@ -121,7 +121,7 @@ def view_page_feeds(request, slug, page):
     data = {}
     account = request.user
     try:
-        channel = Channel.objects.get(channel_name=slug)
+        channel = Channel.objects.get(user_id=account, channel_name=slug)
         if channel.user_id != account:
             data['response'] = "you don't have permission to visit this channel"
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
@@ -143,7 +143,7 @@ def view_filtered_feeds(request, slug):
     data = {}
     account = request.user
     try:
-        channel = Channel.objects.get(channel_name=slug)
+        channel = Channel.objects.get(user_id=account, channel_name=slug)
         if channel.user_id != account:
             data['response'] = "you don't have permission to visit this channel"
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
