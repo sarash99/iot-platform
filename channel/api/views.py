@@ -161,10 +161,14 @@ def view_filtered_feeds(request, slug):
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    filter_datetime = request.GET.get('filter_datetime', '')
-    if filter_datetime:
-        created_at = datetime.strptime(filter_datetime, "%Y-%m-%d %H:%M")
-        feeds = Feed.objects.filter(created_at__gte=created_at, channel_id=channel).order_by('-created_at')
+    filter_start_datetime = request.GET.get('filter_start_datetime', '')
+    filter_end_datetime = request.GET.get('filter_end_datetime', '')
+    if filter_start_datetime and filter_end_datetime:
+        created_at_start = datetime.strptime(filter_start_datetime, "%Y-%m-%d %H:%M")
+        created_at_end = datetime.strptime(filter_end_datetime, "%Y-%m-%d %H:%M")
+        feeds = Feed.objects.filter(created_at__gte=created_at_start,created_at__lte=created_at_end,
+                                    channel_id=channel).order_by('-created_at')
+
         feed_serializer = FeedSerializer(feeds, many=True)
         data['feeds'] = feed_serializer.data
     else:
