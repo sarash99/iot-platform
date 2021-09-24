@@ -14,10 +14,16 @@ from datetime import datetime
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def createChannel(request):
+    data = {}
     account = request.user
+    try:
+        Channel.objects.filter(user_id=account, channel_name=request.POST.get('channel_name'))
+    except not Channel.DoesNotExist:
+        data['response'] = "the user has a channel with the same name"
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
     channel = Channel(user_id=account)
     serializer = ChannelSerializer(channel, request.POST)
-    data = {}
     if serializer.is_valid():
         serializer.save()
         data['channel_fields'] = serializer.data
