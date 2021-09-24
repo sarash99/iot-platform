@@ -17,19 +17,18 @@ def createChannel(request):
     data = {}
     account = request.user
     try:
-        Channel.objects.filter(user_id=account, channel_name=request.POST.get('channel_name'))
-    except not Channel.DoesNotExist:
-        data['response'] = "the user has a channel with the same name"
+        ch = Channel.objects.get(user_id=account, channel_name=request.POST.get('channel_name'))
+        data['response'] = "user has a channel with the same name"
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
-    channel = Channel(user_id=account)
-    serializer = ChannelSerializer(channel, request.POST)
-    if serializer.is_valid():
-        serializer.save()
-        data['channel_fields'] = serializer.data
-        data['response'] = "channel successfully created"
-        return Response(data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Channel.DoesNotExist:
+        channel = Channel(user_id=account)
+        serializer = ChannelSerializer(channel, request.POST)
+        if serializer.is_valid():
+            serializer.save()
+            data['channel_fields'] = serializer.data
+            data['response'] = "channel successfully created"
+            return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
