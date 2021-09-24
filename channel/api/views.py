@@ -91,8 +91,14 @@ def create_API_KEY(request, slug):
     except Channel.DoesNotExist:
         data['response'] = "this channel does not exists"
         return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+    pre_api_key = channel.api_key
+    if pre_api_key:
+        pre_api_key.delete()
+
     api_key, key = APIKey.objects.create_key(name="my-remote-service")
     channel.api_key = api_key
+
     channel.save()
     data['api-key'] = key
     return Response(data, status=status.HTTP_200_OK)
